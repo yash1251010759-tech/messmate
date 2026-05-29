@@ -1,0 +1,549 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Mess Details — MessMate</title>
+
+  <link rel="stylesheet" href="../CSS/style.css">
+  <link rel="stylesheet" href="../CSS/responsive.css">
+  <link rel="stylesheet" href="../CSS/all.min.css">
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <h2>MessMate</h2>
+
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html" id="loginLink">Login</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+
+      <li>
+        <a href="#"
+           id="logoutBtn"
+           style="display:none;"
+           onclick="logout()">
+          Logout
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- LOADING -->
+  <div id="loadingState"
+       style="text-align:center; padding:80px;">
+
+    <p>Loading mess details...</p>
+
+  </div>
+
+  <!-- DETAILS -->
+  <div id="detailsContainer"
+       style="display:none; padding:60px 10%;">
+
+    <!-- BACK BUTTON -->
+    <button onclick="window.history.back()"
+            style="
+              background:#eee;
+              color:#333;
+              margin-bottom:20px;
+            ">
+
+      ← Back
+
+    </button>
+
+    <!-- MAIN FLEX -->
+    <div style="
+      display:flex;
+      gap:40px;
+      flex-wrap:wrap;
+    ">
+
+      <!-- IMAGE -->
+      <div style="
+        flex:1;
+        min-width:280px;
+      ">
+
+        <img id="detailImg"
+             style="
+               width:100%;
+               height:300px;
+               object-fit:cover;
+               border-radius:16px;
+             ">
+
+      </div>
+
+      <!-- INFO -->
+      <div style="
+        flex:2;
+        min-width:280px;
+      ">
+
+        <h1 id="detailName"></h1>
+
+        <p id="detailType"
+           style="color:#777;">
+        </p>
+
+        <h2 id="detailPrice"
+            style="color:orange;">
+        </h2>
+
+        <p id="detailRating"></p>
+
+        <p id="detailLocation"></p>
+
+        <button onclick="subscribeFromDetails()"
+                style="
+                  padding:14px 30px;
+                  margin-top:20px;
+                ">
+
+          Subscribe Now
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- REVIEW SECTION -->
+    <hr style="margin:50px 0;">
+
+    <h2>Add Review</h2>
+
+    <input
+      type="number"
+      id="ratingInput"
+      placeholder="Rating (1-5)"
+      min="1"
+      max="5"
+
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:15px;
+      "
+    >
+
+    <textarea
+      id="commentInput"
+      placeholder="Write your review..."
+
+      style="
+        width:100%;
+        height:120px;
+        padding:12px;
+        margin-top:15px;
+      "
+    ></textarea>
+
+    <button onclick="addReview()"
+            style="margin-top:15px;">
+
+      Submit Review
+
+    </button>
+
+    <!-- DISPLAY REVIEWS -->
+    <hr style="margin:50px 0;">
+
+    <h2>Student Reviews</h2>
+
+    <div id="reviewsContainer">
+
+      <p>Loading reviews...</p>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+
+    <h2>MessMate</h2>
+
+    <p>
+      Affordable food solutions for students.
+    </p>
+
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+
+    const API_URL = "http://127.0.0.1:5000";
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const messId =
+      params.get("id");
+
+    let currentMess = null;
+
+    // =========================
+    // LOAD DETAILS
+    // =========================
+    async function loadDetails() {
+
+      if (!messId) {
+
+        document.getElementById(
+          "loadingState"
+        ).innerText = "No mess selected";
+
+        return;
+
+      }
+
+      try {
+
+        const res =
+          await fetch(`${API_URL}/messes`);
+
+        const data =
+          await res.json();
+
+        currentMess =
+          data.find(m => m._id === messId);
+
+        if (!currentMess) {
+
+          document.getElementById(
+            "loadingState"
+          ).innerText = "Mess not found";
+
+          return;
+
+        }
+
+        document.getElementById(
+          "detailName"
+        ).innerText = currentMess.name;
+
+        document.getElementById(
+          "detailType"
+        ).innerText = currentMess.type;
+
+        document.getElementById(
+          "detailPrice"
+        ).innerText =
+          "₹" + currentMess.price;
+
+        document.getElementById(
+          "detailRating"
+        ).innerText =
+          "⭐ " + (currentMess.rating || 4);
+
+        document.getElementById(
+          "detailLocation"
+        ).innerText =
+          "📍 " + currentMess.location;
+
+        document.getElementById(
+          "detailImg"
+        ).src =
+          "../images/mess1.jpg";
+
+        document.getElementById(
+          "loadingState"
+        ).style.display = "none";
+
+        document.getElementById(
+          "detailsContainer"
+        ).style.display = "block";
+
+        loadReviews();
+
+      }
+
+      catch (err) {
+
+        console.log(err);
+
+        document.getElementById(
+          "loadingState"
+        ).innerText = "Server error";
+
+      }
+
+    }
+
+    // =========================
+    // SUBSCRIBE
+    // =========================
+    async function subscribeFromDetails() {
+
+      const isLoggedIn =
+        localStorage.getItem("isLoggedIn");
+
+      const userEmail =
+        localStorage.getItem("userEmail");
+
+      if (!isLoggedIn) {
+
+        alert("Please login first!");
+
+        window.location.href = "login.html";
+
+        return;
+
+      }
+
+      try {
+
+        const res = await fetch(
+          `${API_URL}/subscribe`,
+          {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              userEmail: userEmail,
+
+              messId: currentMess._id,
+
+              messName: currentMess.name,
+
+              price: currentMess.price
+
+            })
+
+          }
+        );
+
+        const data =
+          await res.json();
+
+        alert(data.message);
+
+      }
+
+      catch (err) {
+
+        alert("Server error");
+
+      }
+
+    }
+
+    // =========================
+    // LOAD REVIEWS
+    // =========================
+    async function loadReviews() {
+
+      try {
+
+        const res =
+          await fetch(
+            `${API_URL}/reviews/${messId}`
+          );
+
+        const reviews =
+          await res.json();
+
+        const reviewsContainer =
+          document.getElementById(
+            "reviewsContainer"
+          );
+
+        if (reviews.length === 0) {
+
+          reviewsContainer.innerHTML =
+            "<p>No reviews yet</p>";
+
+          return;
+
+        }
+
+        reviewsContainer.innerHTML = "";
+
+        reviews.forEach((review) => {
+
+          reviewsContainer.innerHTML += `
+
+            <div style="
+              background:white;
+              padding:20px;
+              margin-top:15px;
+              border-radius:12px;
+              box-shadow:0 0 10px rgba(0,0,0,0.1);
+            ">
+
+              <h4>
+                ${review.userEmail}
+              </h4>
+
+              <p>
+                ⭐ ${review.rating}
+              </p>
+
+              <p>
+                ${review.comment}
+              </p>
+
+            </div>
+
+          `;
+
+        });
+
+      }
+
+      catch (err) {
+
+        console.log(err);
+
+      }
+
+    }
+
+    // =========================
+    // ADD REVIEW
+    // =========================
+    async function addReview() {
+
+      const userEmail =
+        localStorage.getItem("userEmail");
+
+      const rating =
+        document.getElementById(
+          "ratingInput"
+        ).value;
+
+      const comment =
+        document.getElementById(
+          "commentInput"
+        ).value;
+
+      if (!userEmail) {
+
+        alert("Please login first");
+
+        return;
+
+      }
+
+      if (!rating || !comment) {
+
+        alert("Please fill all fields");
+
+        return;
+
+      }
+
+      try {
+
+        const res = await fetch(
+          `${API_URL}/reviews`,
+          {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              messId: currentMess._id,
+
+              messName: currentMess.name,
+
+              userEmail,
+
+              rating,
+
+              comment
+
+            })
+
+          }
+        );
+
+        const data =
+          await res.json();
+
+        alert(data.message);
+
+        document.getElementById(
+          "ratingInput"
+        ).value = "";
+
+        document.getElementById(
+          "commentInput"
+        ).value = "";
+
+        loadReviews();
+
+      }
+
+      catch (err) {
+
+        alert("Server error");
+
+      }
+
+    }
+
+    // =========================
+    // AUTH
+    // =========================
+    function logout() {
+
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("isAdmin");
+
+      window.location.href =
+        "index.html";
+
+    }
+
+    function checkAuth() {
+
+      if (
+        localStorage.getItem("isLoggedIn")
+      ) {
+
+        document.getElementById(
+          "loginLink"
+        ).style.display = "none";
+
+        document.getElementById(
+          "logoutBtn"
+        ).style.display = "inline";
+
+      }
+
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    checkAuth();
+    loadDetails();
+
+  </script>
+
+  <script src="../JS/auth.js"></script>
+
+</body>
+</html>
+```

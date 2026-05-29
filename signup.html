@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MessMate Signup</title>
+
+  <link rel="stylesheet" href="../CSS/style.css">
+  <link rel="stylesheet" href="../CSS/signup.css">
+  <link rel="stylesheet" href="../CSS/responsive.css">
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav>
+
+    <h2>MessMate</h2>
+
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="signup.html">Signup</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="provider.html">Provider</a></li>
+    </ul>
+
+  </nav>
+
+  <!-- Signup -->
+  <section class="signup-box">
+
+    <form id="signupForm">
+
+      <h2 class="section-title">Create Account</h2>
+
+      <input
+        type="text"
+        id="name"
+        placeholder="Enter your name"
+        required>
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Enter your email"
+        required>
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter password"
+        required>
+
+      <button type="submit">
+        Signup
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- Footer -->
+  <footer>
+
+    <h2>MessMate</h2>
+
+    <p>Affordable food solutions for students.</p>
+
+    <div class="socials">
+      <i class="fa-brands fa-instagram"></i>
+      <i class="fa-brands fa-facebook"></i>
+      <i class="fa-brands fa-twitter"></i>
+    </div>
+
+  </footer>
+
+  <!-- AUTH -->
+  <!-- <script src="../JS/auth.js"></script> -->
+
+  <!-- SIGNUP SCRIPT -->
+<script>
+
+const API_URL = "http://127.0.0.1:5000";
+
+document.getElementById("signupForm")
+.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const name =
+    document.getElementById("name").value;
+
+    const email =
+    document.getElementById("email").value;
+
+    const password =
+    document.getElementById("password").value;
+
+    try {
+
+        const res = await fetch(`${API_URL}/signup`, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                name,
+                email,
+                password
+            })
+
+        });
+
+        const text = await res.text();
+
+        console.log(text);
+
+        if(res.ok){
+
+            alert("Signup successful 🚀");
+
+            localStorage.setItem(
+                "isLoggedIn",
+                "true"
+            );
+
+            localStorage.setItem(
+                "userEmail",
+                email
+            );
+
+            window.location.href =
+            "index.html";
+
+        }
+
+        else{
+
+            alert(text);
+
+        }
+
+    }
+
+    catch (err) {
+
+        console.log(err);
+
+        alert("Backend Error");
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

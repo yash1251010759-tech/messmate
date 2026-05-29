@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>MessMate</title>
+
+  <link rel="stylesheet" href="../CSS/style.css">
+  <link rel="stylesheet" href="../CSS/responsive.css">
+  <link rel="stylesheet" href="../CSS/all.min.css">
+
+  <style>
+
+    #messContainer{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:25px;
+      margin-top:30px;
+    }
+
+    .mess-card{
+      background:white;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 4px 15px rgba(0,0,0,0.1);
+      transition:0.3s;
+    }
+
+    .mess-card:hover{
+      transform:translateY(-5px);
+    }
+
+    .mess-card img{
+      width:100%;
+      height:220px;
+      object-fit:cover;
+    }
+
+    .mess-content{
+      padding:20px;
+    }
+
+    .mess-content h3{
+      margin-bottom:10px;
+    }
+
+    .mess-content p{
+      margin:8px 0;
+      color:#555;
+    }
+
+    .btn-group{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:15px;
+    }
+
+    .view-btn,
+    .edit-btn,
+    .delete-btn{
+      border:none;
+      padding:10px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      color:white;
+    }
+
+    .view-btn{
+      background:#ff7a00;
+    }
+
+    .edit-btn{
+      background:#3498db;
+    }
+
+    .delete-btn{
+      background:red;
+    }
+
+    #searchInput{
+      padding:12px;
+      width:280px;
+      border-radius:8px;
+      border:1px solid #ccc;
+    }
+
+    .search-btn{
+      padding:12px 20px;
+      border:none;
+      background:#ff7a00;
+      color:white;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <h2>MessMate</h2>
+
+    <ul>
+
+      <li><a href="index.html">Home</a></li>
+
+      <li><a href="about.html">About</a></li>
+
+      <li><a href="contact.html">Contact</a></li>
+
+      <li><a href="login.html" id="loginLink">Login</a></li>
+
+      <li><a href="dashboard.html">Dashboard</a></li>
+
+      <li><a href="provider.html">Provider</a></li>
+
+      <li>
+        <a href="#"
+           id="logoutBtn"
+           style="display:none;"
+           onclick="logout()">
+          Logout
+        </a>
+      </li>
+
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section>
+
+    <h1>
+      Find Affordable Homemade Food Near Your Hostel
+    </h1>
+
+    <p>
+      Discover trusted mess and homemade food services.
+    </p>
+
+    <button onclick="window.location.href='dashboard.html'">
+      Find Your Mess
+    </button>
+
+  </section>
+
+  <!-- SEARCH -->
+  <div style="text-align:center; margin:30px;">
+
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search by name or location"
+    >
+
+    <button class="search-btn"
+            onclick="searchMess()">
+
+      Search
+
+    </button>
+
+  </div>
+
+  <!-- FEATURED -->
+  <section class="featured">
+
+    <h2>Featured Mess Providers</h2>
+
+    <div id="messContainer">
+
+      <p id="loadingMsg">
+        Loading mess providers...
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+
+    <h2>MessMate</h2>
+
+    <p>
+      Affordable food solutions for students.
+    </p>
+
+  </footer>
+
+  <!-- ================= JS ================= -->
+  <script>
+
+    const API_URL = "http://127.0.0.1:5000";
+
+    // ================= AUTH =================
+    function checkAuth() {
+
+      const isLoggedIn =
+        localStorage.getItem("isLoggedIn");
+
+      if (isLoggedIn) {
+
+        document.getElementById(
+          "loginLink"
+        ).style.display = "none";
+
+        document.getElementById(
+          "logoutBtn"
+        ).style.display = "inline";
+
+      }
+
+    }
+
+    function logout() {
+
+      localStorage.clear();
+
+      window.location.href =
+        "index.html";
+
+    }
+
+    // ================= LOAD MESSES =================
+    async function loadMessProviders() {
+
+      try {
+
+        const res =
+          await fetch(`${API_URL}/messes`);
+
+        const data =
+          await res.json();
+
+        renderMesses(data);
+
+      }
+
+      catch (err) {
+
+        console.log(err);
+
+        document.getElementById(
+          "messContainer"
+        ).innerHTML =
+          "<p>Server not running</p>";
+
+      }
+
+    }
+
+    // ================= RENDER =================
+    function renderMesses(data) {
+
+      const container =
+        document.getElementById(
+          "messContainer"
+        );
+
+      const isAdmin =
+        localStorage.getItem("isAdmin");
+
+      if (!data || data.length === 0) {
+
+        container.innerHTML =
+          "<p>No mess providers found.</p>";
+
+        return;
+
+      }
+
+      container.innerHTML = "";
+
+      data.forEach((mess) => {
+
+        container.innerHTML += `
+
+          <div class="mess-card">
+
+            <img src="${
+              mess.image ||
+              '../images/mess1.jpg'
+            }">
+
+            <div class="mess-content">
+
+              <h3>
+                ${mess.name}
+              </h3>
+
+              <p>
+                📍 ${mess.location || "No location"}
+              </p>
+
+              <p>
+                🍽 ${mess.type || "Veg"}
+              </p>
+
+              <p>
+                ₹${mess.price}
+              </p>
+
+              <p>
+                ⭐ ${mess.rating || 4}
+              </p>
+
+              <div class="btn-group">
+
+                <button
+                  class="view-btn"
+                  onclick="viewDetails('${mess._id}')">
+
+                  View Details
+
+                </button>
+
+                ${
+                  isAdmin === "true"
+                  ?
+
+                  `
+
+                  <button
+                    class="edit-btn"
+                    onclick="editMess('${mess._id}')">
+
+                    Edit
+
+                  </button>
+
+                  <button
+                    class="delete-btn"
+                    onclick="deleteMess('${mess._id}')">
+
+                    Delete
+
+                  </button>
+
+                  `
+
+                  : ""
+
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+        `;
+
+      });
+
+    }
+
+    // ================= VIEW DETAILS =================
+    function viewDetails(id) {
+
+      window.location.href =
+        `messdetails.html?id=${id}`;
+
+    }
+
+    // ================= DELETE =================
+    async function deleteMess(id) {
+
+      const ok =
+        confirm("Delete this mess?");
+
+      if (!ok) return;
+
+      try {
+
+        await fetch(
+          `${API_URL}/messes/${id}`,
+          {
+            method: "DELETE"
+          }
+        );
+
+        loadMessProviders();
+
+      }
+
+      catch (err) {
+
+        alert("Delete failed");
+
+      }
+
+    }
+
+    // ================= EDIT =================
+    async function editMess(id) {
+
+      const name =
+        prompt("Enter new name");
+
+      const price =
+        prompt("Enter new price");
+
+      const location =
+        prompt("Enter new location");
+
+      if (!name || !price || !location) {
+
+        return;
+
+      }
+
+      try {
+
+        await fetch(
+          `${API_URL}/messes/${id}`,
+          {
+
+            method: "PUT",
+
+            headers: {
+              "Content-Type":"application/json"
+            },
+
+            body: JSON.stringify({
+
+              name,
+              price,
+              location
+
+            })
+
+          }
+        );
+
+        loadMessProviders();
+
+      }
+
+      catch (err) {
+
+        alert("Update failed");
+
+      }
+
+    }
+
+    // ================= SEARCH =================
+    async function searchMess() {
+
+      const query =
+        document.getElementById(
+          "searchInput"
+        ).value.toLowerCase();
+
+      try {
+
+        const res =
+          await fetch(`${API_URL}/messes`);
+
+        let data =
+          await res.json();
+
+        if (query) {
+
+          data = data.filter((m) =>
+
+            m.name.toLowerCase().includes(query)
+
+            ||
+
+            (m.location || "")
+            .toLowerCase()
+            .includes(query)
+
+          );
+
+        }
+
+        renderMesses(data);
+
+      }
+
+      catch (err) {
+
+        console.log(err);
+
+      }
+
+    }
+
+    // ================= ENTER SEARCH =================
+    document
+      .getElementById("searchInput")
+
+      .addEventListener("keypress", (e) => {
+
+        if (e.key === "Enter") {
+
+          searchMess();
+
+        }
+
+      });
+
+    // ================= INIT =================
+    checkAuth();
+
+    loadMessProviders();
+
+  </script>
+
+  <script src="../JS/auth.js"></script>
+
+</body>
+</html>
