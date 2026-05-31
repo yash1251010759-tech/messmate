@@ -1,0 +1,15 @@
+@media(max-width:768px){
+
+nav{
+   flex-direction:column;
+}
+
+section{
+   padding:20px;
+}
+
+h1{
+   font-size:30px;
+}
+
+}

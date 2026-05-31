@@ -1,0 +1,95 @@
+body{
+   background:#fff7ef;
+   font-family:Arial;
+   
+}
+
+
+ul{
+   display:flex;
+
+   gap:20px;
+
+   list-style:none;
+}
+
+button{
+   background:orange;
+
+   color:white;
+
+   border:none;
+
+   padding:15px 25px;
+
+   border-radius:10px;
+}
+
+/* contact */
+.signup-box{
+    display: flex;
+    align-items: center;
+    place-items: center;
+    justify-content: center;
+}
+
+#signupForm{
+background:white;
+align-items: center;
+place-items: center;
+padding:30px;
+margin: 100px;
+width:250px;
+border-radius:20px;
+text-align:center;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+transition:0.3s;
+}
+
+#signupForm:hover{
+transform:translateY(-10px);
+}
+
+input{
+    width: 100%;
+    padding: 12px;
+    margin: 8px;
+    display: block;
+    border: 1px solid;
+    border-radius: 5px;
+    box-sizing: border-box;
+    outline: none;
+}
+input: :focus{
+    border-color: #f39c12;
+    box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+}
+textarea{
+    width: 100%;
+    padding: 12px;
+    margin: 8px;
+    display: block;
+    border: 1px solid;
+    border-radius: 5px;
+    box-sizing: border-box;
+    outline: none;
+}
+textarea: :focus{
+    border-color: #f39c12;
+    box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+}
+/* footer */
+footer{
+background:#595656;
+color:white;
+text-align:center;
+padding:50px;
+}
+
+.socials{
+margin-top:20px;
+font-size:25px;
+display:flex;
+justify-content:center;
+gap:20px;
+}
