@@ -1,40 +1,46 @@
+// ===============================
+// CONFIG
+// ===============================
+const API_URL = "https://messmate-1-j4dn.onrender.com";
+
+
+// ===============================
+// REVIEW FORM SUBMIT
+// ===============================
 document.getElementById("reviewForm")
-.addEventListener("submit",
-async function(e){
+.addEventListener("submit", async function (e) {
 
-e.preventDefault();
+  e.preventDefault();
 
-const reviewData = {
+  const reviewData = {
+    studentName: document.getElementById("studentName").value,
+    messId: "Annapurna Mess", // ⚠️ ideally should be dynamic ID
+    rating: Number(document.getElementById("rating").value),
+    comment: document.getElementById("comment").value
+  };
 
-studentName:
-document.getElementById("studentName").value,
+  try {
 
-messName:"Annapurna Mess",
+    const response = await fetch(`${API_URL}/reviews`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(reviewData)
+    });
 
-rating:
-document.getElementById("rating").value,
+    const result = await response.json();
 
-comment:
-document.getElementById("comment").value
+    if (result.success) {
+      alert("Review submitted successfully 🚀");
+      document.getElementById("reviewForm").reset();
+    } else {
+      alert(result.message || "Failed to submit review");
+    }
 
-};
-
-const response = await fetch(
-"http://localhost:5000/review",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(reviewData)
-
-});
-
-const result =
-await response.text();
-
-alert(result);
+  } catch (error) {
+    console.log("Review error:", error);
+    alert("Server error. Try again later.");
+  }
 
 });

@@ -1,18 +1,45 @@
+// ===============================
+// AUTH CHECK
+// ===============================
 function checkAuth() {
-  const isLoggedIn = localStorage.getItem("isLoggedIn");
+  try {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-  if (isLoggedIn) {
     const loginLink = document.getElementById("loginLink");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    if (loginLink) loginLink.style.display = "none";
-    if (logoutBtn) logoutBtn.style.display = "inline";
+    if (isLoggedIn === "true") {
+      if (loginLink) loginLink.style.display = "none";
+      if (logoutBtn) logoutBtn.style.display = "inline-block";
+    } else {
+      if (loginLink) loginLink.style.display = "inline-block";
+      if (logoutBtn) logoutBtn.style.display = "none";
+    }
+
+  } catch (error) {
+    console.log("Auth check error:", error);
   }
 }
 
+
+// ===============================
+// LOGOUT
+// ===============================
 function logout() {
-  localStorage.removeItem("isLoggedIn");
-  localStorage.removeItem("userEmail");
-  localStorage.removeItem("isAdmin");
-  window.location.href = "index.html";
+  try {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("isAdmin");
+
+    window.location.href = "index.html";
+
+  } catch (error) {
+    console.log("Logout error:", error);
+  }
 }
+
+
+// ===============================
+// AUTO RUN
+// ===============================
+document.addEventListener("DOMContentLoaded", checkAuth);

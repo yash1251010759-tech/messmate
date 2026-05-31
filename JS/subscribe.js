@@ -1,3 +1,5 @@
+const API_URL = "https://messmate-1-j4dn.onrender.com";
+
 async function subscribeMess(messName, price) {
 
   // Check login first
@@ -11,25 +13,27 @@ async function subscribeMess(messName, price) {
   }
 
   const subscriptionData = {
-    studentEmail: studentEmail,   
+    studentEmail: studentEmail,
     messName: messName,
     plan: "Monthly",
     price: price
   };
 
   try {
-    const response = await fetch("http://localhost:5000/subscribe", {
+    const response = await fetch(`${API_URL}/subscribe`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(subscriptionData)
     });
 
-    const result = await response.text();
-    alert(result);
+    const result = await response.json();
+
+    alert(result.message || "Subscribed successfully 🎉");
 
   } catch (error) {
-    alert("Error connecting to server. Is your backend running?");
     console.log(error);
+    alert("Error connecting to server");
   }
-
 }

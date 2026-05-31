@@ -1,6 +1,12 @@
-const API_URL = "http://localhost:5000/providers";
+// ===============================
+// CONFIG
+// ===============================
+const API_URL = "https://messmate-1-j4dn.onrender.com/messes";
 
-// LOAD ALL MESS
+
+// ===============================
+// LOAD ALL MESSES
+// ===============================
 async function loadMesses() {
   try {
     const res = await fetch(API_URL);
@@ -9,60 +15,87 @@ async function loadMesses() {
     const container = document.getElementById("messContainer");
     const loadingMsg = document.getElementById("loadingMsg");
 
+    if (!container) return;
+
     if (!data || data.length === 0) {
-      loadingMsg.textContent = "No mess found";
+      if (loadingMsg) loadingMsg.textContent = "No mess found";
       return;
     }
 
-    loadingMsg.style.display = "none";
+    if (loadingMsg) loadingMsg.style.display = "none";
 
     container.innerHTML = data.map(mess => `
       <div class="mess-card">
         <h3>${mess.name}</h3>
         <p>${mess.type || "Food"}</p>
+        <p>${mess.location || "No location"}</p>
         <p>₹${mess.price}</p>
 
-        <button onclick="subscribeMess('${mess.name}', ${mess.price})">
+        <button onclick="subscribeMess('${mess._id}', '${mess.name}', ${mess.price})">
           Subscribe
         </button>
       </div>
     `).join("");
 
   } catch (err) {
-    console.log(err);
-    document.getElementById("messContainer").innerHTML =
-      "<p>Server error</p>";
+    console.log("Load error:", err);
+
+    const container = document.getElementById("messContainer");
+    if (container) {
+      container.innerHTML = "<p>Server error</p>";
+    }
   }
 }
 
-// SEARCH
+
+// ===============================
+// SEARCH MESSES
+// ===============================
 async function searchMess() {
-  const query = document.getElementById("searchInput").value.toLowerCase();
+  try {
+    const query = document
+      .getElementById("searchInput")
+      .value.toLowerCase();
 
-  const res = await fetch(API_URL);
-  const data = await res.json();
+    const res = await fetch(API_URL);
+    const data = await res.json();
 
-  const filtered = data.filter(m =>
-    m.name.toLowerCase().includes(query) ||
-    (m.location && m.location.toLowerCase().includes(query))
-  );
+    const filtered = data.filter(m =>
+      m.name.toLowerCase().includes(query) ||
+      (m.location || "").toLowerCase().includes(query)
+    );
 
-  const container = document.getElementById("messContainer");
+    const container = document.getElementById("messContainer");
 
-  container.innerHTML = filtered.map(mess => `
-    <div class="mess-card">
-      <h3>${mess.name}</h3>
-      <p>${mess.location}</p>
-      <p>₹${mess.price}</p>
-    </div>
-  `).join("");
+    container.innerHTML = filtered.map(mess => `
+      <div class="mess-card">
+        <h3>${mess.name}</h3>
+        <p>${mess.location || "No location"}</p>
+        <p>₹${mess.price}</p>
+      </div>
+    `).join("");
+
+  } catch (err) {
+    console.log("Search error:", err);
+  }
 }
 
-// ENTER KEY SEARCH
-document.getElementById("searchInput")
-  .addEventListener("keypress", (e) => {
-    if (e.key === "Enter") searchMess();
-  });
 
+// ===============================
+// ENTER KEY SEARCH
+// ===============================
+const searchInput = document.getElementById("searchInput");
+
+if (searchInput) {
+  searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      searchMess();
+    }
+  });
+}
+
+
+// ===============================
 // INIT
-loadMesses();
+// ===============================
+document.addEventListener("DOMContentLoaded", loadMesses);

@@ -1,5 +1,14 @@
+// ===============================
+// CONFIG
+// ===============================
+const API_URL = "https://messmate-1-j4dn.onrender.com";
+
+
+// ===============================
+// LOGIN FORM
+// ===============================
 document.getElementById("loginForm")
-.addEventListener("submit", async function(e) {
+.addEventListener("submit", async function (e) {
 
   e.preventDefault();
 
@@ -8,27 +17,45 @@ document.getElementById("loginForm")
     password: document.getElementById("password").value
   };
 
-  const response = await fetch("http://localhost:5000/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(loginData)
-  });
+  try {
 
-  const result = await response.text();
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(loginData)
+    });
 
-  if (result === "Login Successful") {
+    const result = await response.json();
 
-    // ✅ This is now INSIDE the handler — it runs after successful login
-    localStorage.setItem("userEmail", loginData.email);
-    localStorage.setItem("isLoggedIn", "true");
+    // ===============================
+    // SUCCESS LOGIN
+    // ===============================
+    if (result.success) {
 
-    alert("Login Successful! Welcome back 🎉");
+      localStorage.setItem("userEmail", loginData.email);
+      localStorage.setItem("isLoggedIn", "true");
 
-    // ✅ Go to index (home page), not dashboard
-    window.location.href = "index.html";
+      if (result.isAdmin) {
+        localStorage.setItem("isAdmin", "true");
+      } else {
+        localStorage.setItem("isAdmin", "false");
+      }
 
-  } else {
-    alert(result);
+      alert("Login Successful 🎉");
+
+      window.location.href = "index.html";
+
+    } 
+    // ===============================
+    // FAIL LOGIN
+    // ===============================
+    else {
+      alert(result.message || "Invalid credentials");
+    }
+
+  } catch (error) {
+    console.log("Login error:", error);
+    alert("Server error. Try again later.");
   }
 
 });

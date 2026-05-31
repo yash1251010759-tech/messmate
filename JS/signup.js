@@ -1,56 +1,40 @@
+const API_URL = "https://messmate-1-j4dn.onrender.com";
 
 console.log("Signup JS Connected");
 
 document.getElementById("signupForm")
-.addEventListener("submit", async function(e){
+.addEventListener("submit", async function (e) {
 
-e.preventDefault();
+  e.preventDefault();
 
-console.log("Form Submitted");
+  console.log("Form Submitted");
 
-const userData = {
+  const userData = {
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
+  };
 
-name:
-document.getElementById("name").value,
+  try {
+    const response = await fetch(`${API_URL}/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(userData)
+    });
 
-email:
-document.getElementById("email").value,
+    const result = await response.json();
 
-password:
-document.getElementById("password").value
+    if (result.success) {
+      alert("Signup Successful 🎉");
+      window.location.href = "login.html";
+    } else {
+      alert(result.message || "Signup failed");
+    }
 
-};
-
-console.log(userData);
-
-try{
-
-const response = await fetch(
-"http://localhost:5000/signup",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(userData)
-
-});
-
-const result = await response.text();
-
-console.log(result);
-
-alert(result);
-
-}
-catch(error){
-
-console.log(error);
-
-alert("Error Connecting Backend");
-
-}
-
+  } catch (error) {
+    console.log(error);
+    alert("Error Connecting Backend");
+  }
 });
