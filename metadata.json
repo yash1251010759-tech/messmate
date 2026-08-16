@@ -1,0 +1,6 @@
+{
+  "name": "MessMate - Hostel Mess Management System",
+  "description": "A modern, responsive full-stack hostel mess management system with student and admin dashboards, menu planning, meal registration, attendance, feedback, complaints tracking, and analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
